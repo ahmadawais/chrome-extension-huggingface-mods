@@ -130,6 +130,7 @@
       const id = repoIdFromPath(new URL(a.href, location.origin).pathname);
       if (!id) continue;
       article.dataset.hfms = '1';
+      article.dataset.hfmsId = id;
 
       const meta = a.querySelector('header')?.nextElementSibling;
       if (!meta) continue;
@@ -167,6 +168,125 @@
     getSize(id).then((size) => resolveBadge(size, pill, []));
   }
 
+  // --- Client-side "Sort by size" injected into HF's sort dropdown ---
+
+  const NATIVE_SORT_LABELS = [
+    'Trending', 'Most likes', 'Most downloads', 'Recently created',
+    'Recently updated', 'Most parameters', 'Least parameters',
+  ];
+  const SIZE_SORTS = [
+    ['Largest size', 'desc', 'Size ↓'],
+    ['Smallest size', 'asc', 'Size ↑'],
+  ];
+
+  let sizeSort = null;
+
+  async function applySizeSort(dir) {
+    if (location.pathname !== '/models') return;
+    const grid = document.querySelector('div.grid:has(> article.overview-card-wrapper)');
+    if (!grid) return;
+
+    const articles = [...grid.querySelectorAll(':scope > article.overview-card-wrapper')];
+    await Promise.all(
+      articles.map(async (a) => {
+        if (!a.dataset.hfmsId) return;
+        const size = await getSize(a.dataset.hfmsId);
+        a.dataset.hfmsSize = size ?? -1;
+      }),
+    );
+    if (sizeSort !== dir) return;
+
+    const live = articles.filter((el) => el.isConnected && el.parentElement === grid);
+    const sorted = live.slice().sort((a, b) => {
+      const sa = Number(a.dataset.hfmsSize ?? -1);
+      const sb = Number(b.dataset.hfmsSize ?? -1);
+      if (sa < 0 && sb < 0) return 0;
+      if (sa < 0) return 1;
+      if (sb < 0) return -1;
+      return dir === 'desc' ? sb - sa : sa - sb;
+    });
+    if (sorted.every((a, i) => live[i] === a)) return;
+    for (const a of sorted) grid.appendChild(a);
+  }
+
+  function findSortMenu() {
+    const items = [...document.querySelectorAll('a, button')].filter(
+      (el) => NATIVE_SORT_LABELS.includes(el.textContent.trim()) && el.offsetParent !== null,
+    );
+    if (items.length < 3) return null;
+    let menu = items[0].parentElement;
+    while (menu && !items.every((i) => menu.contains(i))) menu = menu.parentElement;
+    return menu;
+  }
+
+  function findSortButton() {
+    return [...document.querySelectorAll('button')].find((b) =>
+      /^\s*Sort\s*:/.test(b.textContent),
+    );
+  }
+
+  function updateSortButtonLabel(text) {
+    const btn = findSortButton();
+    if (!btn) return;
+    for (const node of btn.childNodes) {
+      if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('Sort')) {
+        node.textContent = node.textContent.replace(/Sort\s*:.*$/s, `Sort: ${text}`);
+      }
+    }
+  }
+
+  function closeSortMenu(menu) {
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    setTimeout(() => {
+      if (menu.isConnected && menu.offsetParent !== null) findSortButton()?.click();
+    }, 80);
+  }
+
+  function injectSortItems() {
+    const menu = findSortMenu();
+    if (!menu || menu.querySelector('.hfms-sort-item')) return;
+    const ref = [...menu.querySelectorAll('a, button')].find((el) =>
+      NATIVE_SORT_LABELS.includes(el.textContent.trim()),
+    );
+    if (!ref) return;
+
+    for (const [label, dir, shortLabel] of SIZE_SORTS) {
+      const item = ref.cloneNode(true);
+      item.removeAttribute('href');
+      item.classList.add('hfms-sort-item');
+      item.textContent = (sizeSort === dir ? '✓ ' : '') + label;
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        sizeSort = dir;
+        applySizeSort(dir);
+        updateSortButtonLabel(shortLabel);
+        setTimeout(() => closeSortMenu(menu), 50);
+      });
+      menu.appendChild(item);
+    }
+  }
+
+  document.addEventListener(
+    'click',
+    (e) => {
+      if (location.pathname !== '/models') return;
+      const el = e.target.closest('button, a');
+      if (!el) return;
+      const label = el.textContent.trim();
+      if (NATIVE_SORT_LABELS.includes(label)) {
+        sizeSort = null;
+        return;
+      }
+      if (/^\s*Sort\s*:/.test(label)) {
+        setTimeout(injectSortItems, 60);
+        setTimeout(injectSortItems, 250);
+      }
+    },
+    true,
+  );
+
+  // --- Wiring ---
+
   let scheduled = false;
   function schedule() {
     if (scheduled) return;
@@ -175,6 +295,7 @@
       scheduled = false;
       enhanceListingCards();
       enhanceModelPage();
+      if (sizeSort) applySizeSort(sizeSort);
     }, 250);
   }
 
@@ -187,6 +308,7 @@
     const orig = history[type];
     history[type] = function (...args) {
       const r = orig.apply(this, args);
+      if (new URL(location.href).searchParams.has('sort')) sizeSort = null;
       schedule();
       return r;
     };
