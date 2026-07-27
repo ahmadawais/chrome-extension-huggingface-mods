@@ -12,6 +12,12 @@ Chrome extension (Manifest V3) that shows total repo file sizes on Hugging Face.
 
 The size is the same number shown on the repo's `/tree/main` page (sum of all files in the current revision, e.g. `1.56 TB`).
 
+## Sort by size
+
+![Sort by size](.github/media/sort.png)
+
+`Largest size` / `Smallest size` are injected into HF's sort dropdown on `/models` pages. The active option gets a ✓ and the sort button label updates to `Sort: Size ↓` / `Sort: Size ↑`.
+
 ## Install
 
 1. Open `chrome://extensions`
