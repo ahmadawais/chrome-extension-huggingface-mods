@@ -1,0 +1,26 @@
+.hfms-badge {
+  gap: 4px;
+}
+
+.hfms-badge svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  opacity: 0.8;
+}
+
+.hfms-model-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hfms-model-tag svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+
+.hfms-val {
+  white-space: nowrap;
+}

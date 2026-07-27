@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "HF Model Size",
+  "version": "1.0.0",
+  "description": "Shows total repo file sizes on Hugging Face — on model cards in /models listings and on model pages.",
+  "content_scripts": [
+    {
+      "matches": ["https://huggingface.co/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
