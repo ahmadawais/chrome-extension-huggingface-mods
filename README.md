@@ -4,7 +4,7 @@ Chrome extension (Manifest V3) that shows total repo file sizes on Hugging Face.
 
 | Before | After |
 | --- | --- |
-| ![Before](.github/before.png) | ![After](.github/after.png) |
+| ![Before](.github/media/before.png) | ![After](.github/media/after.png) |
 
 - **`/models` listing pages** — every model card gets a size badge at the end of its meta row (e.g. quantization searches like `?other=base_model:quantized:moonshotai/Kimi-K3`)
 - **Model pages** (`/{author}/{name}`) — a size pill is added to the tag row under the model name, linking to the Files tab
