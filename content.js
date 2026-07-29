@@ -190,7 +190,8 @@
     if (!id) return;
 
     const nameSpan = link.querySelector('span.font-mono');
-    if (!nameSpan || nameSpan.querySelector('.hfms-tree-badge')) return;
+    if (!nameSpan) return;
+    if (nameSpan.nextElementSibling?.classList?.contains('hfms-tree-badge')) return;
 
     const badge = document.createElement('span');
     badge.className = 'inline-flex flex-none items-center gap-0.5 ml-1 text-gray-500 dark:text-gray-400 hfms-tree-badge';
