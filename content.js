@@ -177,7 +177,7 @@
     const treeHeading = headings.find((el) => el.textContent.trim() === 'Model Tree');
     if (!treeHeading) return;
 
-    const container = treeHeading.closest('.mb-4, .my-6, div');
+    const container = treeHeading.closest('.mb-4, .my-6');
     if (!container) return;
 
     const link = container.querySelector('a[href*="/"]');
@@ -185,7 +185,8 @@
 
     const href = link.getAttribute('href');
     if (!href) return;
-    const id = repoIdFromPath(href.startsWith('/') ? href : '/' + href);
+    const path = href.startsWith('/') ? href : `/${href}`;
+    const id = repoIdFromPath(path);
     if (!id) return;
 
     const nameSpan = link.querySelector('span.font-mono');
