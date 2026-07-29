@@ -7,6 +7,7 @@ Chrome extension (Manifest V3) that shows total repo file sizes on Hugging Face.
 | ![Before](.github/media/before.png) | ![After](.github/media/after.png) |
 
 - **`/models` listing pages** — every model card gets a size badge at the end of its meta row (e.g. quantization searches like `?other=base_model:quantized:moonshotai/Kimi-K3`)
+- **Model Tree sidebar** — when browsing quantized/finetuned models, the base model name in the sidebar gets a size badge so you know the source model's weight
 - **Model pages** (`/{author}/{name}`) — a size pill is added to the tag row under the model name, linking to the Files tab
 - **Org profiles** (`/{org}`) — size badges on model cards in collections and model tabs
 - **Collection pages** (`/collections/{org}/{collection}`) — size badges on listed models
@@ -18,7 +19,7 @@ The size is the same number shown on the repo's `/tree/main` page (sum of all fi
 
 ![Sort by size](.github/media/sort.png)
 
-`Largest size` / `Smallest size` are injected into HF's sort dropdown on `/models` pages. The active option gets a ✓ and the sort button label updates to `Sort: Size ↓` / `Sort: Size ↑`.
+`Largest size` / `Smallest size` are injected into HF's sort dropdown wherever model cards appear. The active option gets a ✓ and the sort button label updates to `Sort: Size ↓` / `Sort: Size ↑`.
 
 ## Install
 
