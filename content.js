@@ -172,6 +172,34 @@
     getSize(id).then((size) => resolveBadge(size, pill, []));
   }
 
+  function enhanceModelTree() {
+    const headings = [...document.querySelectorAll('div.text-sm.font-medium')];
+    const treeHeading = headings.find((el) => el.textContent.trim() === 'Model Tree');
+    if (!treeHeading) return;
+
+    const container = treeHeading.closest('.mb-4, .my-6, div');
+    if (!container) return;
+
+    const link = container.querySelector('a[href*="/"]');
+    if (!link) return;
+
+    const href = link.getAttribute('href');
+    if (!href) return;
+    const id = repoIdFromPath(href.startsWith('/') ? href : '/' + href);
+    if (!id) return;
+
+    const nameSpan = link.querySelector('span.font-mono');
+    if (!nameSpan || nameSpan.querySelector('.hfms-tree-badge')) return;
+
+    const badge = document.createElement('span');
+    badge.className = 'inline-flex flex-none items-center gap-0.5 ml-1 text-gray-500 dark:text-gray-400 hfms-tree-badge';
+    badge.style.cssText = 'font-size:0.7rem;font-family:monospace;';
+    badge.innerHTML = `• ${ICON_SVG}<span class="hfms-val">…</span>`;
+    nameSpan.after(badge);
+
+    getSize(id).then((size) => resolveBadge(size, badge, []));
+  }
+
   // --- Client-side "Sort by size" injected into HF's sort dropdown ---
 
   const NATIVE_SORT_LABELS = [
@@ -306,12 +334,14 @@
       scheduled = false;
       enhanceListingCards();
       enhanceModelPage();
+      enhanceModelTree();
       if (sizeSort) applySizeSort(sizeSort);
     }, 250);
   }
 
   enhanceListingCards();
   enhanceModelPage();
+  enhanceModelTree();
 
   new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
 
