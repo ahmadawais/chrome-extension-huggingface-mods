@@ -121,8 +121,12 @@
     badge.title = `Total size of all files in this repo (${size.toLocaleString('en-US')} bytes)`;
   }
 
+  function isModelsPage() {
+    return document.querySelector('article.overview-card-wrapper') !== null;
+  }
+
   function enhanceListingCards() {
-    if (location.pathname !== '/models') return;
+    if (!isModelsPage()) return;
 
     for (const article of document.querySelectorAll('article.overview-card-wrapper:not([data-hfms])')) {
       const a = article.querySelector('a[href^="/"]');
@@ -182,7 +186,6 @@
   let sizeSort = null;
 
   async function applySizeSort(dir) {
-    if (location.pathname !== '/models') return;
     const grid = document.querySelector('div.grid:has(> article.overview-card-wrapper)');
     if (!grid) return;
 
@@ -213,10 +216,19 @@
     const items = [...document.querySelectorAll('a, button')].filter(
       (el) => NATIVE_SORT_LABELS.includes(el.textContent.trim()) && el.offsetParent !== null,
     );
-    if (items.length < 3) return null;
-    let menu = items[0].parentElement;
-    while (menu && !items.every((i) => menu.contains(i))) menu = menu.parentElement;
-    return menu;
+    if (items.length >= 3) {
+      let menu = items[0].parentElement;
+      while (menu && !items.every((i) => menu.contains(i))) menu = menu.parentElement;
+      return menu;
+    }
+    // Fallback for collection/org pages where sort labels differ
+    const btn = findSortButton();
+    if (!btn) return null;
+    const wrapper = btn.closest('.relative') || btn.parentElement;
+    if (!wrapper) return null;
+    return [...wrapper.children].find(
+      (c) => c !== btn && c.offsetParent !== null && c.querySelectorAll('button, a').length >= 2,
+    ) || null;
   }
 
   function findSortButton() {
@@ -269,7 +281,6 @@
   document.addEventListener(
     'click',
     (e) => {
-      if (location.pathname !== '/models') return;
       const el = e.target.closest('button, a');
       if (!el) return;
       const label = el.textContent.trim();
