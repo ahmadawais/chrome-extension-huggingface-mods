@@ -289,7 +289,7 @@
     if (!menu || menu.querySelector('.hfms-sort-item')) return;
     const ref = [...menu.querySelectorAll('a, button')].find((el) =>
       NATIVE_SORT_LABELS.includes(el.textContent.trim()),
-    );
+    ) || menu.querySelector('a, button');
     if (!ref) return;
 
     for (const [label, dir, shortLabel] of SIZE_SORTS) {
