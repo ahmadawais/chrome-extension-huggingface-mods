@@ -54,3 +54,7 @@ HF enforces rate limits per 5-minute fixed window on Hub API calls ([docs](https
 - A `/models` page has ~30 cards → ~30 API calls on first visit, then **zero for 12h** (cache)
 - You would need ~17 fresh listing pages in 5 minutes (anonymous) or ~33 (logged in) to hit the cap
 - If a 429 does happen, that badge simply doesn't render and fills in on the next page view — nothing breaks
+
+## Author
+
+[Ahmad Awais](https://ahmadawais.com/)
